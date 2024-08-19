@@ -1,0 +1,139 @@
+class Livro:
+    def __init__(self, titulo, autor, ISBN):
+        self.__titulo = titulo
+        self.__autor = autor
+        self.__ISBN = ISBN
+        self.__disponivel = True
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def get_autor(self):
+        return self.__autor
+
+    def get_ISBN(self):
+        return self.__ISBN
+
+    def is_disponivel(self):
+        return self.__disponivel
+
+    @staticmethod
+    def adicionar(biblioteca, livro):
+        biblioteca.livros.append(livro)
+
+    @staticmethod
+    def buscar(biblioteca, termo_busca):
+        resultados = [livro for livro in biblioteca.livros
+                      if termo_busca.lower() in livro.get_titulo().lower() or termo_busca.lower() in livro.get_autor().get_nome().lower()]
+        return resultados
+
+    def emprestar(self, usuario):
+        if self.__disponivel:
+            self.__disponivel = False
+            usuario.livros_emprestados.append(self)
+            print(f'Livro "{self.__titulo}" emprestado a {usuario.get_nome()}.')
+        else:
+            print(f'Livro "{self.__titulo}" não está disponível.')
+
+    def devolver(self, usuario):
+        if self in usuario.livros_emprestados:
+            self.__disponivel = True
+            usuario.livros_emprestados.remove(self)
+            print(f'Livro "{self.__titulo}" devolvido por {usuario.get_nome()}.')
+        else:
+            print(f'Erro: Livro "{self.__titulo}" não foi emprestado para {usuario.get_nome()}.')
+
+    def __str__(self):
+        return f'{self.__titulo} de {self.__autor.get_nome()} (ISBN: {self.__ISBN}) - {"Disponível" if self.__disponivel else "Emprestado"}'
+
+
+class Autor:
+    def __init__(self, nome, nacionalidade):
+        self.__nome = nome
+        self.__nacionalidade = nacionalidade
+
+    def get_nome(self):
+        return self.__nome
+
+    def get_nacionalidade(self):
+        return self.__nacionalidade
+
+    def __str__(self):
+        return f'{self.__nome} ({self.__nacionalidade})'
+
+
+class Usuario:
+    def __init__(self, nome, id_usuario):
+        self.__nome = nome
+        self.__id = id_usuario
+        self.livros_emprestados = []
+
+    def get_nome(self):
+        return self.__nome
+
+    def get_id(self):
+        return self.__id
+
+    def __str__(self):
+        return f'Usuário: {self.__nome} (ID: {self.__id})'
+
+
+class Biblioteca:
+    def __init__(self):
+        self.livros = []
+        self.usuarios = []
+
+    def adicionar_usuario(self, usuario):
+        self.usuarios.append(usuario)
+        print(f'Usuário {usuario.get_nome()} adicionado à biblioteca.')
+
+    def listar_livros(self):
+        for livro in self.livros:
+            print(livro)
+
+    def listar_usuarios(self):
+        for usuario in self.usuarios:
+            print(usuario)
+
+
+if __name__ == "__main__":
+    autor1 = Autor("George Orwell", "Britânico")
+    autor2 = Autor("J.K. Rowling", "Britânica")
+
+    livro1 = Livro("1984", autor1, "1234567890")
+    livro2 = Livro("Harry Potter e a Pedra Filosofal", autor2, "9876543210")
+
+    biblioteca = Biblioteca()
+
+    Livro.adicionar(biblioteca, livro1)
+    Livro.adicionar(biblioteca, livro2)
+
+    print("Livros disponíveis na biblioteca:")
+    biblioteca.listar_livros()
+
+    usuario1 = Usuario("Alice", 1)
+    usuario2 = Usuario("Bob", 2)
+
+    biblioteca.adicionar_usuario(usuario1)
+    biblioteca.adicionar_usuario(usuario2)
+
+    print("\nUsuários cadastrados na biblioteca:")
+    biblioteca.listar_usuarios()
+
+    termo_busca = "George"
+    print(f"\nBuscando livros com o termo '{termo_busca}':")
+    resultados = Livro.buscar(biblioteca, termo_busca)
+    for livro in resultados:
+        print(livro)
+
+    print("\nEmprestando livro:")
+    livro1.emprestar(usuario1)
+
+    print("\nTentando emprestar o mesmo livro para outro usuário:")
+    livro1.emprestar(usuario2)
+
+    print("\nDevolvendo livro:")
+    livro1.devolver(usuario1)
+
+    print("\nTentando devolver um livro que não foi emprestado:")
+    livro2.devolver(usuario2)
